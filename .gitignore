@@ -27,10 +27,10 @@ lane
 debug
 pretrained_models
 
-work_dirs/ 
+work_dirs/* 
 !work_dirs/.gitkeep
 .cache/ 
-data/ 
+data/* 
 !data/.gitkeep
 lanedet.egg-info/ 
 demo/
