@@ -26,3 +26,13 @@ build
 lane
 debug
 pretrained_models
+
+work_dirs/ 
+.cache/ 
+data/ 
+lanedet.egg-info/ 
+demo/driver_37_30frame/ 
+lanedet.egg-info/ 
+wandb/ 
+lanedet_env/
+.python-version 

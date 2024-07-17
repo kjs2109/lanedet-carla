@@ -6,7 +6,10 @@ import numbers
 import collections
 from PIL import Image
 
-from ..registry import PROCESS
+from ..registry import PROCESS 
+
+import albumentations as A
+
 
 def to_tensor(data):
     """Convert objects of various python types to :obj:`torch.Tensor`.
@@ -18,7 +21,7 @@ def to_tensor(data):
         data (torch.Tensor | numpy.ndarray | Sequence | int | float): Data to
             be converted.
     """
-
+    data = data.copy() 
     if isinstance(data, torch.Tensor):
         return data
     elif isinstance(data, np.ndarray):
@@ -226,6 +229,7 @@ class RandomBlur(object):
         self.applied = applied
 
     def __call__(self, img_group):
+        # self.applied = self.applied * len(img_group)
         assert (len(self.applied) == len(img_group))
         v = random.random()
         if v < 0.5:
@@ -278,3 +282,68 @@ class Normalize(object):
         sample['img'] = img
 
         return sample 
+
+
+
+
+# custom transform 
+@PROCESS.register_module 
+class JpegCompression(A.JpegCompression):
+    def __init__(self, quality_lower=85, quality_upper=95, always_apply=False, p=0.5, cfg=None):
+        super(JpegCompression, self).__init__(quality_lower=quality_lower, quality_upper=quality_upper, always_apply=always_apply, p=p)
+
+    def __call__(self, sample):
+        sample['img'] = super(JpegCompression, self).__call__(image=sample['img'])['image']
+        return sample
+    
+
+@PROCESS.register_module 
+class OneOf(A.OneOf):
+    def __init__(self, transforms, always_apply=False, p=0.5, cfg=None):
+        super(OneOf, self).__init__(transforms=transforms, always_apply=always_apply, p=p)
+
+    def __call__(self, sample):
+        sample['img'] = super(OneOf, self).__call__(image=sample['img'])['image']
+        return sample
+    
+
+@PROCESS.register_module
+class RandomBrightness(A.RandomBrightness):
+    def __init__(self, limit=0.2, always_apply=False, p=0.5, cfg=None):
+        super(RandomBrightness, self).__init__(limit=limit, always_apply=always_apply, p=p)
+
+    def __call__(self, sample):
+        sample['img'] = super(RandomBrightness, self).__call__(image=sample['img'])['image']
+        return sample 
+    
+@PROCESS.register_module 
+class GridDropout(A.GridDropout):
+    def __init__(self, ratio=0.5, unit_size_min=20, unit_size_max=100, fill_value=0, always_apply=False, p=0.5, cfg=None):
+        super(GridDropout, self).__init__(ratio=ratio, unit_size_min=unit_size_min, unit_size_max=unit_size_max, random_offset=True, fill_value=fill_value, always_apply=always_apply, p=p)
+
+    def __call__(self, sample):
+        sample['img'] = super(GridDropout, self).__call__(image=sample['img'])['image']
+        return sample
+
+
+# mask도 변환 필요 
+@PROCESS.register_module
+class ShiftScaleRotate(A.ShiftScaleRotate):
+    def __init__(self, shift_limit=0.1, scale_limit=(-0.2, 0.2), rotate_limit=10, border_mode=0, always_apply=False, p=0.5, cfg=None):
+        super(ShiftScaleRotate, self).__init__(shift_limit=shift_limit, scale_limit=scale_limit, rotate_limit=rotate_limit, border_mode=border_mode, always_apply=always_apply, p=p)
+
+    def __call__(self, sample):
+        sample['img'] = super(ShiftScaleRotate, self).__call__(image=sample['img'])['image']
+        return sample
+
+
+# mask도 변환 필요 
+@PROCESS.register_module
+class RandomResizedCrop(A.RandomResizedCrop):
+    def __init__(self, height, width, scale=(0.8, 1.2), ratio=(1.7, 2.7), always_apply=False, p=0.5, cfg=None):
+        super(RandomResizedCrop, self).__init__(height=height, width=width, scale=scale, ratio=ratio, always_apply=always_apply, p=p)
+
+    def __call__(self, sample):
+        sample['img'] = super(RandomResizedCrop, self).__call__(image=sample['img'])['image']
+        return sample
+    

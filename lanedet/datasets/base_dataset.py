@@ -14,8 +14,7 @@ from mmcv.parallel import DataContainer as DC
 
 @DATASETS.register_module
 class BaseDataset(Dataset):
-    def __init__(self, data_root, split, processes=None,
-            cfg=None):
+    def __init__(self, data_root, split, processes=None, cfg=None):
         self.cfg = cfg
         self.logger = logging.getLogger(__name__)
         self.data_root = data_root
@@ -28,9 +27,9 @@ class BaseDataset(Dataset):
         for lanes, img_meta in zip(predictions, img_metas):
             img_name = img_meta['img_name']
             img = cv2.imread(osp.join(self.data_root, img_name))
-            out_file = osp.join(self.cfg.work_dir, 'visualization',
-                                img_name.replace('/', '_'))
+            out_file = osp.join(self.cfg.work_dir, 'visualization', img_name.replace('/', '_'))
             lanes = [lane.to_array(self.cfg) for lane in lanes]
+            
             imshow_lanes(img, lanes, out_file=out_file)
 
     def __len__(self):
@@ -52,7 +51,10 @@ class BaseDataset(Dataset):
             if len(label.shape) > 2:
                 label = label[:, :, 0]
             label = label.squeeze()
-            label = label[self.cfg.cut_height:, :]
+            label = label[self.cfg.cut_height:, :] 
+            ## binary mask 
+            # binary_label = np.where(label != 0, 1, 0)
+            # sample.update({'mask': binary_label})
             sample.update({'mask': label})
 
         sample = self.processes(sample)

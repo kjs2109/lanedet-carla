@@ -38,18 +38,20 @@ class LaneSeg(nn.Module):
 
     def probmap2lane(self, probmaps, exists=None):
         lanes = []
-        probmaps = probmaps[1:, ...]
+        probmaps = probmaps[1:, ...]  # remove background
         if exists is None:
             exists = [True for _ in probmaps]
         for probmap, exist in zip(probmaps, exists):
             if exist == 0:
                 continue
-            probmap = cv2.blur(probmap, (9, 9), borderType=cv2.BORDER_REPLICATE)
+            probmap = cv2.blur(probmap, (9, 9), borderType=cv2.BORDER_REPLICATE)  # probmap.shape = (cfg.img_height, cfg.img_width)
             cut_height = self.cfg.cut_height
             ori_h = self.cfg.ori_img_h - cut_height
             coord = []
             for y in self.sample_y:
-                proj_y = round((y - cut_height) * self.cfg.img_height/ori_h)
+                proj_y = round((y - cut_height) * self.cfg.img_height/ori_h) 
+                if proj_y < 0 or proj_y >= self.cfg.img_height:
+                    continue
                 line = probmap[proj_y]
                 if np.max(line) < self.thr:
                     continue
@@ -72,13 +74,11 @@ class LaneSeg(nn.Module):
         weights = torch.ones(self.cfg.num_classes)
         weights[0] = self.cfg.bg_weight
         weights = weights.cuda()
-        criterion = torch.nn.NLLLoss(ignore_index=self.cfg.ignore_label,
-                                          weight=weights).cuda()
+        criterion = torch.nn.NLLLoss(ignore_index=self.cfg.ignore_label, weight=weights).cuda()
         criterion_exist = torch.nn.BCEWithLogitsLoss().cuda()
         loss = 0.
         loss_stats = {}
-        seg_loss = criterion(F.log_softmax(
-            output['seg'], dim=1), batch['mask'].long())
+        seg_loss = criterion(F.log_softmax(output['seg'], dim=1), batch['mask'].long()) 
         loss += seg_loss
         loss_stats.update({'seg_loss': seg_loss})
 

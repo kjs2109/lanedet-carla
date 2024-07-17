@@ -35,8 +35,7 @@ def build_dataloader(split_cfg, cfg, is_train=True):
 
     dataset = build_dataset(split_cfg, cfg)
 
-    init_fn = partial(
-            worker_init_fn, seed=cfg.seed)
+    init_fn = partial(worker_init_fn, seed=cfg.seed)
 
     samples_per_gpu = cfg.batch_size // cfg.gpus
     data_loader = torch.utils.data.DataLoader(

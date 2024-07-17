@@ -18,17 +18,16 @@ class Detect(object):
         self.cfg = cfg
         self.processes = Process(cfg.val_process, cfg)
         self.net = build_net(self.cfg)
-        self.net = torch.nn.parallel.DataParallel(
-                self.net, device_ids = range(1)).cuda()
+        self.net = torch.nn.parallel.DataParallel(self.net, device_ids = range(1)).cuda()
         self.net.eval()
         load_network(self.net, self.cfg.load_from)
 
     def preprocess(self, img_path):
         ori_img = cv2.imread(img_path)
-        img = ori_img[self.cfg.cut_height:, :, :].astype(np.float32)
-        data = {'img': img, 'lanes': []}
-        data = self.processes(data)
-        data['img'] = data['img'].unsqueeze(0)
+        img = ori_img[self.cfg.cut_height:, :, :].astype(np.float32) # 이미지의 윗부분을 잘라내고, float32로 변환
+        data = {'img': img, 'lanes': []} 
+        data = self.processes(data) 
+        data['img'] = data['img'].unsqueeze(0)  
         data.update({'img_path':img_path, 'ori_img':ori_img})
         return data
 
@@ -51,6 +50,45 @@ class Detect(object):
         if self.cfg.show or self.cfg.savedir:
             self.show(data)
         return data
+    
+    def vis_inference(self, ori_img, cfg): 
+        img = ori_img[self.cfg.cut_height:, :, :].astype(np.float32) 
+        data = {'img': img, 'lanes': []}
+        # img = self.preprocess(data) 
+        img = self.processes(img) 
+        data['img'] = img['img'].unsqueeze(0)
+        # data.update({'ori_img':ori_img})
+        data['lanes'] = self.inference(img)[0] 
+        lanes = [lane.to_array(self.cfg) for lane in data['lanes']]
+        for lane in lanes: 
+            for x, y in lane: 
+                if x <= 0 or y <= 0: 
+                    continue 
+                x, y = int(x), int(y) 
+                cv2.circle(ori_img, (x, y), 4, (255, 0, 0), 2) 
+
+        result_img = ori_img
+        return result_img 
+
+# def imshow_lanes(img, lanes, show=False, out_file=None):
+#     for lane in lanes:
+#         for x, y in lane:
+#             if x <= 0 or y <= 0:
+#                 continue
+#             x, y = int(x), int(y)
+#             cv2.circle(img, (x, y), 4, (255, 0, 0), 2)
+
+#     if show:
+#         cv2.imshow('view', img)
+#         cv2.waitKey(0)
+
+#     if out_file:
+#         if not osp.exists(osp.dirname(out_file)):
+#             os.makedirs(osp.dirname(out_file))
+#         cv2.imwrite(out_file, img)
+
+
+
 
 def get_img_paths(path):
     p = str(Path(path).absolute())  # os-agnostic absolute path
@@ -78,8 +116,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('config', help='The path of config file')
     parser.add_argument('--img',  help='The path of the img (img file or img_folder), for example: data/*.png')
-    parser.add_argument('--show', action='store_true', 
-            help='Whether to show the image')
+    parser.add_argument('--show', action='store_true', help='Whether to show the image')
     parser.add_argument('--savedir', type=str, default=None, help='The root of save directory')
     parser.add_argument('--load_from', type=str, default='best.pth', help='The path of model')
     args = parser.parse_args()

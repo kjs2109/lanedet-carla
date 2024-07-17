@@ -11,12 +11,12 @@ backbone = dict(
 )
 featuremap_out_channel = 128
 featuremap_out_stride = 8
+sample_y=range(710, 150, -10)
 
 aggregator = dict(
     type='SCNN',
 )
 
-sample_y=range(710, 150, -10)
 heads = dict(
     type='LaneSeg',
     decoder=dict(type='PlainDecoder'),
@@ -25,14 +25,14 @@ heads = dict(
 )
 
 optimizer = dict(
-  type = 'SGD',
-  lr = 0.025,
-  weight_decay = 1e-4,
-  momentum = 0.9
+  type = 'Adam',
+  lr = 0.00025,
+  # weight_decay = 1e-4,
+  # momentum = 0.9
 )
 
 epochs = 100
-batch_size = 8 
+batch_size = 32 
 total_iter = (3616 // batch_size + 1) * epochs 
 import math
 scheduler = dict(
@@ -75,16 +75,18 @@ dataset = dict(
         split='trainval',
         processes=train_process,
     ),
+    # validation 
     val=dict(
         type='TuSimple',
         data_root=dataset_path,
         split='test',
         processes=val_process,
     ),
+    # evaluation 
     test=dict(
         type='TuSimple',
         data_root=dataset_path,
-        split='test',
+        split='val',
         processes=val_process,
     )
 )
@@ -96,5 +98,5 @@ ignore_label = 255
 log_interval = 100
 eval_ep = 1
 save_ep = epochs
-test_json_file='data/tusimple/test_label.json'
+test_json_file = 'data/tusimple/test_label.json' # 'data/tusimple/label_data_0531.json'  
 lr_update_by_epoch = False
