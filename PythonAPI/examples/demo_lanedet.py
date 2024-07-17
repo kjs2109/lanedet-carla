@@ -53,8 +53,6 @@ from collections import deque
 from tools.my_detect import Detect 
 from lanedet.utils.config import Config  
 
-from manual_control import KeyboardControl 
-
 random.seed(41) 
 
 # lanedet model setting 
