@@ -31,7 +31,7 @@ work_dirs/
 .cache/ 
 data/ 
 lanedet.egg-info/ 
-demo/driver_37_30frame/ 
+demo/
 lanedet.egg-info/ 
 wandb/ 
 lanedet_env/
