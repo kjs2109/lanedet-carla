@@ -1188,7 +1188,8 @@ def game_loop(args):
     try:
         client = carla.Client(args.host, args.port)
         client.set_timeout(20.0)
-        client.load_world(args.map)
+        # client.load_world(args.map) 
+        # client.load_world()
         
         sim_world = client.get_world()
         if args.sync:
@@ -1254,7 +1255,7 @@ def main():
     argparser.add_argument('--verbose', action='store_true', dest='debug', help='print debug information')
     argparser.add_argument('--host',metavar='H',default= '172.30.1.101', help='IP of the host server (default: 127.0.0.1)') # '127.0.0.1',h
     argparser.add_argument('--port',metavar='P',default=2000,type=int,help='TCP port to listen to (default: 2000)')
-    argparser.add_argument('--map',metavar='TOWN',default='Town04',help='load a new map (default: Town04)')
+    argparser.add_argument('--map',metavar='TOWN',default='Town10',help='load a new map (default: Town10)')
     argparser.add_argument('--autopilot',action='store_true',help='enable autopilot')
     argparser.add_argument('--res',metavar='WIDTHxHEIGHT',default='1280x720',help='window resolution (default: 1280x720)')
     argparser.add_argument('--filter',metavar='PATTERN',default='vehicle.*',help='actor filter (default: "vehicle.*")')

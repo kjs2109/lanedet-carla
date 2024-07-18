@@ -67,6 +67,7 @@ import os
 import sys
 import csv
 import time
+import json 
 
 try:
     sys.path.append(glob.glob('../carla/dist/carla-*%d.%d-%s.egg' % (
@@ -101,21 +102,99 @@ import pygame
 from threading import Thread
 from PIL import Image
 
-random.seed(42)
 
-class DataLogger:
-    ##csv 파일로 저장을 하기 위한 코드 
-    def __init__(self, filename):
-        self.filename = filename
-        with open(self.filename, 'w', newline='') as csvfile:
-            self.writer = csv.writer(csvfile)
-            ##각 열의 변수를 어떤걸로 설정할지 지정
-            self.writer.writerow(['timestamp', 'lat', 'lon', 'accel_x', 'accel_y', 'accel_z', 'gyro_x', 'gyro_y', 'gyro_z', 'compass']) 
+# class CarlaLogger:
+#     def __init__(self, filename):
+#         self.filename = filename
+#         self.data = []
 
-    def log(self, timestamp, lat, lon, accel, gyro, compass):
-        with open(self.filename, 'a', newline='') as csvfile:
-            self.writer = csv.writer(csvfile)
-            self.writer.writerow([timestamp, lat, lon, accel[0], accel[1], accel[2], gyro[0], gyro[1], gyro[2], compass])
+
+#     def log(self, clock, velocity, transform, compass, heading, world):
+#         vehicle_name = self.get_actor_display_name(world.player, truncate=20)
+#         map_name = world.map.name.split('/')[-1]
+#         simulation_time = str(datetime.timedelta(seconds=int(world.get_snapshot().timestamp.elapsed_seconds)))
+#         speed = 3.6 * math.sqrt(velocity.x**2 + velocity.y**2 + velocity.z**2)
+#         imu_sensor = world.get_actor(world.player.id + 1)
+#         gnss_sensor = world.get_actor(world.player.id + 2)
+#         accelerometer = imu_sensor.accelerometer if imu_sensor else (0.0, 0.0, 0.0)
+#         gyroscope = imu_sensor.gyroscope if imu_sensor else (0.0, 0.0, 0.0)
+#         location = {'x': transform.location.x, 'y': transform.location.y}
+#         gnss = {'lat': gnss_sensor.lat if gnss_sensor else 0.0, 'lon': gnss_sensor.lon if gnss_sensor else 0.0}
+#         height = transform.location.z
+
+#         log_entry = {
+#             'Server FPS': world.get_settings().fixed_delta_seconds,
+#             'Client FPS': clock.get_fps(),
+#             'Vehicle': vehicle_name,
+#             'Map': map_name,
+#             'Simulation time': simulation_time,
+#             'Speed km/h': speed,
+#             'Compass': compass,
+#             'Heading': heading,
+#             'Accelerometer': accelerometer,
+#             'Gyroscope': gyroscope,
+#             'Location': location,
+#             'GNSS': gnss,
+#             'Height': height
+#         }
+#         self.data.append(log_entry)
+
+#     def save(self):
+#         with open(self.filename, 'w') as file:
+#             json.dump(self.data, file, indent=4)
+
+#     @staticmethod
+#     def get_actor_display_name(actor, truncate=20):
+#         name = ' '.join(actor.type_id.replace('_', '.').title().split('.')[1:])
+#         return (name[:truncate-1] + u'\u2026') if len(name) > truncate else name
+
+#     @staticmethod
+#     def get_heading(compass):
+#         heading = 'N'
+#         if 45 <= compass < 135:
+#             heading = 'E'
+#         elif 135 <= compass < 225:
+#             heading = 'S'
+#         elif 225 <= compass < 315:
+#             heading = 'W'
+#         return heading 
+
+
+class CarlaLogger:
+    def __init__(self, log_file):
+        self.log_file = log_file
+        self.logs = []
+
+    def log(self, server_fps, clock, world, compass, heading, t):
+        v = world.player.get_velocity()
+        log_entry = {
+            'Server FPS': server_fps,
+            'Client FPS': clock.get_fps(),
+            'Vehicle': get_actor_display_name(world.player, truncate=20),
+            'Map': world.map.name.split('/')[-1],
+            'Simulation time': str(datetime.timedelta(seconds=int(world.hud.simulation_time))),
+            'Speed km/h': 3.6 * math.sqrt(v.x**2 + v.y**2 + v.z**2),
+            'Compass': compass,
+            'Heading': heading,
+            'Accelerometer': world.imu_sensor.accelerometer,
+            'Gyroscope': world.imu_sensor.gyroscope,
+            'Location': {'x': t.location.x, 'y': t.location.y},
+            'GNSS': {'lat': world.gnss_sensor.lat, 'lon': world.gnss_sensor.lon},
+            'Height': t.location.z
+        }
+        self.logs.append(log_entry)
+
+    def save(self):
+        with open(self.log_file, 'w') as file:
+            json.dump(self.logs, file, indent=4)
+
+def get_actor_display_name(actor, truncate=20):
+    # This function would return the display name of the actor
+    # This is a placeholder implementation; replace it with actual code to get the actor's display name
+    name = 'Vehicle Name'
+    return (name[:truncate - 1] + u'\u2026') if len(name) > truncate else name
+
+
 
 try:
     import pygame
@@ -652,8 +731,9 @@ class KeyboardControl(object):
 
 
 class HUD(object):
-    def __init__(self, width, height):
-        self.dim = (width, height)
+    def __init__(self, width, height, carla_logger):
+        self.dim = (width, height) 
+        self.carla_logger = carla_logger 
         font = pygame.font.Font(pygame.font.get_default_font(), 20)
         font_name = 'courier' if os.name == 'nt' else 'mono'
         fonts = [x for x in pygame.font.get_fonts() if font_name in x]
@@ -708,7 +788,11 @@ class HUD(object):
             'Location:% 20s' % ('(% 5.1f, % 5.1f)' % (t.location.x, t.location.y)),
             'GNSS:% 24s' % ('(% 2.6f, % 3.6f)' % (world.gnss_sensor.lat, world.gnss_sensor.lon)),
             'Height:  % 18.0f m' % t.location.z,
-            '']
+            ''] 
+
+        # self.carla_logger.log(clock, v, t, compass, heading, world)  
+        self.carla_logger.log(self.server_fps, clock, world, compass, heading, t) 
+
         if isinstance(c, carla.VehicleControl):
             self._info_text += [
                 ('Throttle:', c.throttle, 0.0, 1.0),
@@ -1241,17 +1325,19 @@ def game_loop(args):
         display.fill((0,0,0))
         pygame.display.flip()
 
-        hud = HUD(args.width, args.height)
 
         ## GPS 및 IMU 파일 저장 경로 및 파일 이름 설정
-        log_file = open('C:/Users/tukorea01/Desktop/project_han/log_data.csv', 'w', newline='')
+        log_file = open('./log/log_data.csv', 'w', newline='')
         log_writer = csv.writer(log_file)
         log_writer.writerow(['Timestamp', 'VehicleID', 'Latitude', 'Longitude', 'AccelX', 'AccelY', 'AccelZ', 'GyroX', 'GyroY', 'GyroZ'])
 
         ## 카메라 캡쳐 데이터 경로 설정 
-        camera_folder = 'C:/Users/tukorea01/Desktop/project_han/camera'
-        os.makedirs(camera_folder, exist_ok=True)
+        camera_folder = './camera'
+        os.makedirs(camera_folder, exist_ok=True) 
 
+        carla_logger = CarlaLogger('./log/driving_log.json')
+
+        hud = HUD(args.width, args.height, carla_logger)
         world = World(carla_world, hud, args, log_writer, camera_folder)  
         controller = KeyboardControl(world, args.autopilot)
 
@@ -1281,6 +1367,7 @@ def game_loop(args):
         if world is not None:
             world.destroy()
 
+        carla_logger.save() 
         pygame.quit()
 
 
@@ -1302,7 +1389,7 @@ def main():
     argparser.add_argument(
         '--host',
         metavar='H',
-        default='127.0.0.1',
+        default='172.30.1.101',
         help='IP of the host server (default: 127.0.0.1)')
     argparser.add_argument(
         '-p', '--port',
