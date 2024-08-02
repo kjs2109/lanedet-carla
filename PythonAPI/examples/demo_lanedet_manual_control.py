@@ -1278,7 +1278,7 @@ def game_loop(args):
 def main():
     argparser = argparse.ArgumentParser(description='CARLA Manual Control Client')
     argparser.add_argument('--verbose', action='store_true', dest='debug', help='print debug information')
-    argparser.add_argument('--host',metavar='H',default= '172.30.1.101', help='IP of the host server (default: 127.0.0.1)') # '127.0.0.1',h
+    argparser.add_argument('--host',metavar='H',default= '127.0.0.1', help='IP of the host server (default: 127.0.0.1)') 
     argparser.add_argument('--port',metavar='P',default=2000,type=int,help='TCP port to listen to (default: 2000)')
     argparser.add_argument('--autopilot',action='store_true',help='enable autopilot')
     argparser.add_argument('--res',metavar='WIDTHxHEIGHT',default='800x600',help='window resolution (default: 1280x720)')

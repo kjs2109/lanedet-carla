@@ -33,7 +33,6 @@ work_dirs/*
 data/* 
 !data/.gitkeep
 lanedet.egg-info/ 
-demo/
 lanedet.egg-info/ 
 wandb/ 
 lanedet_env/
