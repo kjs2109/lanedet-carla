@@ -18,20 +18,14 @@ from mmcv.parallel import DataContainer as DC
 from PIL import Image 
 
 
-SPLIT_FILES = {
-    'trainval': ['scenario_1.txt', 'scenario_2.txt', 'scenario_3.txt', 'scenario_4.txt', 'scenario_5.txt', 'scenario_6.txt', 'scenario_7.txt', 'scenario_8.txt'], 
-    'train': ['scenario_1.txt', 'scenario_2.txt', 'scenario_3.txt', 'scenario_4.txt', 'scenario_5.txt'],
-    'val': ['scenario_6.txt', 'scenario_7.txt', 'scenario_8.txt'],
-    'test': ['scenario_9.txt', 'scenario_10.txt'],
-}
+SPLIT_FILES = {}
 
 # SPLIT_FILES = {
-#     'trainval': ['scenario_1.txt'], 
-#     'train': ['scenario_1.txt'],
-#     'val': ['scenario_6.txt'],
-#     'test': ['scenario_9.txt'],
+#     'trainval': ['scenario_1.txt', 'scenario_2.txt', 'scenario_3.txt', 'scenario_4.txt', 'scenario_5.txt', 'scenario_6.txt', 'scenario_7.txt', 'scenario_8.txt'], 
+#     'train': ['scenario_1.txt', 'scenario_2.txt', 'scenario_3.txt', 'scenario_4.txt', 'scenario_5.txt'],
+#     'val': ['scenario_6.txt', 'scenario_7.txt', 'scenario_8.txt'],
+#     'test': ['scenario_9.txt', 'scenario_10.txt'],
 # }
-
 
 
 @DATASETS.register_module
@@ -43,10 +37,25 @@ class DssDataset(Dataset):
         self.training = 'train' in split 
         self.process = Process(processes, cfg) 
 
-        self.scenarios = SPLIT_FILES[split] 
+        self.scenarios = self.split_dataset()[split] if SPLIT_FILES == {} else SPLIT_FILES[split] 
         self.data_infos = self.load_annotations()
         # self.h_samples = list(range(160, 720, 10)) 
 
+    def split_dataset(self): 
+        scenarios = sorted([scenario for scenario in os.listdir(self.data_root) if scenario.endswith('.txt')]) 
+
+        scenario_count = len(scenarios) 
+        train_index = int(scenario_count * 0.6) 
+        val_index = int(scenario_count * 0.2) + train_index
+
+        split_files = {
+            'trainval': scenarios[:val_index], 
+            'train': scenarios[:train_index], 
+            'val': scenarios[train_index:val_index], 
+            'test': scenarios[val_index:], 
+        }
+
+        return split_files 
 
     def load_annotations(self): 
         self.logger.info('Loading DSS annotations...') 

@@ -56,16 +56,16 @@ from lanedet.utils.config import Config
 random.seed(41) 
 
 # lanedet model setting 
-config_file = '/root/works/lanedet/demo/configs/carla_scnn_tusimple.py'
+config_file = '/root/lanedet-carla/demo/configs/campus_scnn_tusimple.py'
 
 cfg = Config.fromfile(config_file)
 cfg.show = False 
-cfg.savedir = '/root/works/lanedet'
-cfg.load_from = '/root/works/lanedet/demo/checkpoints/scnn_r18_tusimple.pth'
+cfg.savedir = '/root/lanedet-carla'
+cfg.load_from = '/root/lanedet-carla/demo/checkpoints/scnn_r18_tusimple.pth'
 carla_detect = Detect(cfg)
 
 # carla setting 
-client = carla.Client('172.30.1.101', 2000) 
+client = carla.Client('172.17.0.1', 3000) 
 # client.load_world('Town01')
 world = client.get_world() 
 
