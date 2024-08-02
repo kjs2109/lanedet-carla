@@ -97,7 +97,7 @@ def make_seg_label(label_path):
 
                 points.append([int(x), int(y)]) 
             points = np.array(points, np.int32) 
-            cv2.polylines(mask, [points], isClosed=False, color=(255), thickness=12) 
+            cv2.polylines(mask, [points], isClosed=False, color=(1, 1, 1), thickness=12) 
 
     except:
         print(f'error {label_path}') 
