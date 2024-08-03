@@ -1,0 +1,1 @@
+scnn_r18_tusimple.pth : Tusimple 데이터셋으로 학습된 기본 모델 가중치 
