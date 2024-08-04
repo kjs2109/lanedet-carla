@@ -10,10 +10,10 @@ original source code: https://github.com/Turoad/lanedet
     <summary>Support Model</summary>
     <div markdown="1">
         <ul>
-            <li>SCNN</li>
-            <li>UFLD</li>
-            <li>LaneATT</li>
-            <li>CondLane</li>
+            <li><a href='https://arxiv.org/pdf/1712.06080'>SCNN</a></li>
+            <li><a href='https://arxiv.org/pdf/2004.11757'>UFLD</a></li>
+            <li><a href='https://arxiv.org/pdf/2010.12035'>LaneATT</a></li>
+            <li><a href='https://arxiv.org/pdf/2105.05003'>CondLane</a></li>
         </ul>
     </div>
 </details>
