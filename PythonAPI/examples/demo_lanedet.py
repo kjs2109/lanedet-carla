@@ -113,11 +113,11 @@ def simulate(args):
 if __name__ == '__main__': 
 
     parser = argparse.ArgumentParser(description='Train a detector')
-    parser.add_argument('--config', default="/root/works/lanedet/demo/configs/carla_scnn_tusimple.py")
-    parser.add_argument('--load_from', default='/root/works/lanedet/demo/checkpoints/scnn_r18_tusimple.pth') 
+    parser.add_argument('--config', default="/root/lanedet-carla/demo/configs/carla_scnn_tusimple.py")
+    parser.add_argument('--load_from', default='/root/lanedet-carla/demo/checkpoints/scnn_r18_tusimple.pth') 
     parser.add_argument('--vis_type', type=str, default='circle', help='vis_type ["circle", "line"]')
     parser.add_argument('--spawn_point', type=int, default=1, help='spawn point index')
-    parser.add_argument('--host', type=str, default='127.0.0.1', helo='carla server IP') 
+    parser.add_argument('--host', type=str, default='127.0.0.1', help='carla server IP') 
     parser.add_argument('--port', type=int, default=2000, help='port')
     parser.add_argument('--seed', type=int, default=41, help='random seed')
     args = parser.parse_args()
