@@ -163,7 +163,10 @@ class Runner(object):
                 self.metric = metric
                 self.save_ckpt(is_best=True)
         
-        self.recorder.logger.info('Best metric: ' + str(self.metric))
+            self.recorder.logger.info('Best metric: ' + str(self.metric))
+
+        elif mode == 'eval':
+            self.recorder.logger.info('Best metric: ' + str(metric))
 
 
     def save_ckpt(self, is_best=False):

@@ -134,7 +134,7 @@ def process(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('config', help='The path of config file')
+    parser.add_argument('--config', help='The path of config file')
     parser.add_argument('--img',  help='The path of the img (img file or img_folder), for example: data/*.png')
     parser.add_argument('--show', action='store_true', help='Whether to show the image')
     parser.add_argument('--savedir', type=str, default=None, help='The root of save directory')

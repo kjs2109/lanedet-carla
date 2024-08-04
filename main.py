@@ -50,7 +50,7 @@ def main():
     if args.evaluate: 
         runner.validate(mode='eval') 
     
-    if not (args.validate and args.evaluate):
+    if (not args.validate) and (not args.evaluate):
         runner.train()
 
 def parse_args():

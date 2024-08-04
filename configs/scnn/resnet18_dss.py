@@ -72,7 +72,7 @@ dataset = dict(
     train=dict(
         type='DssDataset',
         data_root=dataset_path,
-        split='trainval',
+        split='train',
         processes=train_process,
     ),
     # validation 
@@ -93,7 +93,7 @@ dataset = dict(
 
 
 workers = 12
-num_classes = 2 # 6 + 1
+num_classes = 2 
 ignore_label = 255
 log_interval = 100
 eval_ep = 1
