@@ -126,7 +126,7 @@ python tools/my_detect.py --config ./demo/configs/config.py --img ./demo/images 
 
 ## Deep Dive
 
-For more details, please refer to this guide
+For more details, please refer to [this guide](https://github.com/kjs2109/lanedet-carla/blob/main/docs/Landet-Carla%20%ED%99%9C%EC%9A%A9%20%EA%B0%80%EC%9D%B4%EB%93%9C.pdf)
 
 ### Experiment Tracking
 
