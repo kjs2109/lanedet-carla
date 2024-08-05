@@ -13,7 +13,7 @@ def create_dataframe(data_info):
     root_dir = data_info['root_dir'] 
     raw_data = data_info['raw_data']
     label_data = data_info['label_data']
-    design_id = data_info['design_id']
+    # design_id = data_info['design_id']
     raw_data_type = data_info['raw_data_type']
     label_type = data_info['label_type']
     target_root = data_info['target_root']
@@ -34,30 +34,31 @@ def create_dataframe(data_info):
 
         print(f'start {scenario}')
         # find image files and label files 
-        for image in tqdm(os.listdir(os.path.join(root_dir, raw_data, scenario, design_id, raw_data_type))): 
+        for design_id in tqdm(os.listdir(os.path.join(root_dir, raw_data, scenario))):
+            for image in os.listdir(os.path.join(root_dir, raw_data, scenario, design_id, raw_data_type)): 
 
-            curr_scenario.append(scenario) 
+                curr_scenario.append(scenario) 
 
-            image_fnames.append(image)
-            image_fpaths.append(os.path.join(root_dir, raw_data, scenario, design_id, raw_data_type, image)) 
+                image_fnames.append(image)
+                image_fpaths.append(os.path.join(root_dir, raw_data, scenario, design_id, raw_data_type, image)) 
 
-            if raw_data_type == 'Image_RGB': 
-                img_format = '.png'
-            else: 
-                raise ValueError('unknown raw data type')
+                if raw_data_type == 'Image_RGB': 
+                    img_format = '.png'
+                else: 
+                    raise ValueError('unknown raw data type')
 
-            if label_type == 'outputJson/PolyLine': 
-                label_format = '.json'
-            else: 
-                raise ValueError('unknown label type')
+                if label_type == 'outputJson/PolyLine': 
+                    label_format = '.json'
+                else: 
+                    raise ValueError('unknown label type')
 
-            label_fname = image.replace(img_format, label_format)
-            label_fnames.append(label_fname)
-            label_fpaths.append(os.path.join(root_dir, label_data, scenario, design_id, label_type, label_fname))    
+                label_fname = image.replace(img_format, label_format)
+                label_fnames.append(label_fname)
+                label_fpaths.append(os.path.join(root_dir, label_data, scenario, design_id, label_type, label_fname))    
 
-            trg_image_fpaths.append(os.path.join(target_root, 'images', scenario, image)) 
-            trg_label_fpaths.append(os.path.join(target_root, 'polylines', scenario, label_fname)) 
-            trg_seg_label_fpaths.append(os.path.join(target_root, 'seg_labels', scenario, image.replace(img_format, '.png')))
+                trg_image_fpaths.append(os.path.join(target_root, 'images', scenario, image)) 
+                trg_label_fpaths.append(os.path.join(target_root, 'polylines', scenario, label_fname)) 
+                trg_seg_label_fpaths.append(os.path.join(target_root, 'seg_labels', scenario, image.replace(img_format, '.png')))
 
         
     df = pd.DataFrame({
@@ -185,7 +186,7 @@ if __name__ == '__main__':
         'root_dir': '/root/DssDataset', 
         'raw_data': 'rawData/Car', 
         'label_data': 'labelingData/Car', 
-        'design_id': 'Design0001', 
+        # 'design_id': 'Design0001', 
         'raw_data_type': 'Image_RGB', 
         'label_type': 'outputJson/PolyLine', 
         'target_root': '/root/lanedet-carla/data/DSS', 
