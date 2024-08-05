@@ -63,7 +63,7 @@ original source code: https://github.com/Turoad/lanedet
         <ul>
             <li>지속적인 모델의 성능 비교와 학습과정 모니터링을 위한 유틸리티 제공</li> 
             <ul>
-                <li><a href='https://kr.wandb.ai/'>WandB</a>a - learning rate, training loss, vailation metric tracking 가능</li>
+                <li><a href='https://kr.wandb.ai/'>WandB</a> - learning rate, training loss, vailation metric tracking 가능</li>
                 <li>학습 과정에서의 inference 결과 모니터링 가능</li>
                 <li>학습 단위로 실험의 config와 best model의 가중치 파일 저장</li>
             </ul>
@@ -75,7 +75,7 @@ original source code: https://github.com/Turoad/lanedet
     <div markdown="1">
         <ul>
             <li>Albumentation 라이브러리를 활용한 Custom Augmentation 구현 및 적용 가능</li> 
-            <li>RandAugment 지원</li> 
+            <li><a href='https://arxiv.org/pdf/1909.13719'>RandAugment</a> 지원</li> 
         </ul>
     </div>
 </details>
