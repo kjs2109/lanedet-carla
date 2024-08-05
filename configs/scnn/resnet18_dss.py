@@ -98,5 +98,5 @@ ignore_label = 255
 log_interval = 100
 eval_ep = 1
 save_ep = epochs
-test_json_file = 'data/tusimple/test_label.json' # 'data/tusimple/label_data_0531.json'  
+test_json_file = None
 lr_update_by_epoch = False
