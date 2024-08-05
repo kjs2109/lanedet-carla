@@ -1,5 +1,5 @@
 # LaneDet-Carla
-
+![lanedet-carla-gif-min](https://github.com/user-attachments/assets/31db0618-9d6d-4368-807d-985cdc8641d8)
 ## Introduction
 
 lane detection 모델 학습과 평가를 위한 베이스라인 코드   
