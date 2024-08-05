@@ -116,7 +116,7 @@ $ python main.py --config ./configs/scnn/resnet18_dss.py --exp exp1_scnn-resnet1
 
 # validation 
 $ cp ./work_dirs/DssDataset/{exp_name}/{exp_date}/config.py ./demo/configs/ 
-$ cp ./work_dirs/DssDatast/{exp_name}/{exp_date}/ckpt/best.pth ./demo/checkpoints
+$ cp ./work_dirs/DssDataset/{exp_name}/{exp_date}/ckpt/best.pth ./demo/checkpoints
 $ python main.py --evaluate --config ./demo/configs/config.py --load_from ./demo/checkpoints/best.pth 
 
 # inference 
