@@ -28,7 +28,7 @@ original source code: https://github.com/Turoad/lanedet
             </ul>
             <li>DssDataset</li>
                 <ul> 
-                    <li>고신뢰성 물리 기반 자율주행 시뮬레이션인 Divine Sim Suite(DSS)에서 수집된 자율주행 인공지능 모델 학습용 데이터</li>
+                    <li>고신뢰성 물리 기반 자율주행 시뮬레이션인 Divine Sim Suite(DSS)에서 수집된 자율주행 인공지능 학습용 데이터</li>
                     <li>support metric :  dice</li>
                 </ul>
             <li>CULane</li>
