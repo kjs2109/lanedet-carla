@@ -40,7 +40,7 @@ original source code: https://github.com/Turoad/lanedet
 
 </details>
 
-## New Feature
+## New Features
 <details> 
     <summary>1st. Support DssDataset</summary>
     <div markdown="1">
