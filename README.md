@@ -120,7 +120,7 @@ $ cp ./work_dirs/DssDataset/{exp_name}/{exp_date}/ckpt/best.pth ./demo/checkpoin
 $ python main.py --evaluate --config ./demo/configs/config.py --load_from ./demo/checkpoints/best.pth 
 
 # inference 
-$ python tools/my_detect.py --config ./demo/configs/config.py --img ./demo/images --load_from ./demo/checkpoints/best.pth --savedir ./vis
+$ python tools/my_detect.py --config ./demo/configs/config.py --img ./demo/images --load_from ./demo/checkpoints/best.pth --savedir ./vis --vis_mode semantic
 
 ```
 
