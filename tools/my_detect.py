@@ -32,11 +32,11 @@ class Detect(object):
         data.update({'img_path':img_path, 'ori_img':ori_img})
         return data
 
-    def inference(self, data):
+    def inference(self, data, cfg):
         # print('img shape ', data['img'].shape)
         with torch.no_grad():
             data = self.net(data)
-            data = self.net.module.get_lanes(data)
+            data = self.net.module.get_lanes(data, cfg.vis_mode) 
         return data
 
     def show(self, data):
@@ -46,9 +46,9 @@ class Detect(object):
         lanes = [lane.to_array(self.cfg) for lane in data['lanes']]
         imshow_lanes(data['ori_img'], lanes, show=self.cfg.show, out_file=out_file)
 
-    def run(self, data):
+    def run(self, data, cfg):
         data = self.preprocess(data)
-        data['lanes'] = self.inference(data)[0]
+        data['lanes'] = self.inference(data, cfg)[0]
         if self.cfg.show or self.cfg.savedir:
             self.show(data)
         return data 
@@ -60,7 +60,7 @@ class Detect(object):
         data = self.processes(data) 
         data['img'] = data['img'].unsqueeze(0)
         # data.update({'ori_img':ori_img})
-        data['lanes'] = self.inference(data)[0] 
+        data['lanes'] = self.inference(data, cfg)[0] 
         lanes = [lane.to_array(self.cfg) for lane in data['lanes']]
         for lane in lanes: 
             for x, y in lane: 
@@ -80,7 +80,7 @@ class Detect(object):
         data = self.processes(data) 
         data['img'] = data['img'].unsqueeze(0)
         # data.update({'ori_img':ori_img})
-        data['lanes'] = self.inference(data)[0] 
+        data['lanes'] = self.inference(data, cfg)[0] 
         lanes = [np.array(lane.to_array(self.cfg), dtype=np.int32) for lane in data['lanes']] 
         filtered_lanes = []  
         for lane in lanes: 
@@ -126,11 +126,12 @@ def process(args):
     cfg = Config.fromfile(args.config)
     cfg.show = args.show
     cfg.savedir = args.savedir
-    cfg.load_from = args.load_from
+    cfg.load_from = args.load_from 
+    cfg.vis_mode = args.vis_mode
     detect = Detect(cfg)
     paths = get_img_paths(args.img)
     for p in tqdm(paths):
-        detect.run(p)
+        detect.run(p, cfg)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -139,5 +140,6 @@ if __name__ == '__main__':
     parser.add_argument('--show', action='store_true', help='Whether to show the image')
     parser.add_argument('--savedir', type=str, default=None, help='The root of save directory')
     parser.add_argument('--load_from', type=str, default='best.pth', help='The path of model')
+    parser.add_argument('--vis_mode', type=str, default='instance', help='The mode of visualization ["instance", "semantic]')
     args = parser.parse_args()
     process(args)

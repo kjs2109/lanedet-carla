@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 import torch.nn.functional as F
-from lanedet.core.lane import Lane
+from lanedet.core.lane import Lane, MyLane 
 import cv2
 import numpy as np
 
@@ -19,7 +19,7 @@ class LaneSeg(nn.Module):
         self.decoder = build_head(decoder, cfg)
         self.exist = build_head(exist, cfg) if exist else None 
 
-    def get_lanes(self, output):
+    def get_lanes(self, output, vis_mode): 
         segs = output['seg']
         segs = F.softmax(segs, dim=1)
         segs = segs.detach().cpu().numpy()
@@ -32,7 +32,12 @@ class LaneSeg(nn.Module):
 
         ret = []
         for seg, exist in zip(segs, exists):
-            lanes = self.probmap2lane(seg, exist)
+            if vis_mode == 'semantic':
+                lanes = self.probmap2lane_seg(seg, exist)
+            elif vis_mode == 'instance':
+                lanes = self.probmap2lane(seg, exist)
+            else: 
+                raise ValueError("Invalid vis mode")
             ret.append(lanes)
         return ret
 
@@ -68,7 +73,51 @@ class LaneSeg(nn.Module):
             coord[:, 1] /= self.cfg.ori_img_h
             lanes.append(Lane(coord))
     
-        return lanes
+        return lanes 
+    
+    def check_point(self, check_index, curr_index):
+        for index in check_index:
+            if abs(index - curr_index) < 20:
+                return False
+        return True 
+    
+    def probmap2lane_seg(self, probmaps, exists=None):
+        lanes = [] 
+        probmaps = probmaps[1:, ...] 
+        if exists is None: 
+            exists = [True for _ in probmaps] 
+        for probmap, exist in zip(probmaps, exists): 
+            if exist == 0: 
+                continue 
+            probmap = cv2.blur(probmap, (9, 9), borderType=cv2.BORDER_REPLICATE)  # probmap.shape = (cfg.img_height, cfg.img_width)
+            cut_height = self.cfg.cut_height
+            ori_h = self.cfg.ori_img_h - cut_height
+            coord = [] 
+            for y in self.sample_y: 
+                proj_y = round((y - cut_height) * self.cfg.img_height/ori_h) 
+                if proj_y < 0 or proj_y >= self.cfg.img_height: 
+                    continue 
+                line = probmap[proj_y]  
+                if np.max(line) < self.thr: 
+                    continue 
+
+                count = 0 
+                check_index = [] 
+                sorted_point_index = np.argsort(line)[::-1] 
+                for curr_index in sorted_point_index: 
+                    if (line[curr_index] > self.thr) and self.check_point(check_index, curr_index):  
+                        x = curr_index * self.cfg.ori_img_w / self.cfg.img_width
+                        if x > 0: 
+                            check_index.append(curr_index)
+                            coord.append([x, y])  
+                            count += 1 
+                    if count > 5: 
+                        break 
+
+            lanes.append(MyLane(coord))
+
+        return lanes 
+
 
     def loss(self, output, batch):
         weights = torch.ones(self.cfg.num_classes)

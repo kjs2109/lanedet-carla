@@ -43,4 +43,37 @@ class Lane:
             self.curr_iter += 1
             return self.points[self.curr_iter - 1]
         self.curr_iter = 0
+        raise StopIteration 
+
+
+
+class MyLane:
+    def __init__(self, points=None, invalid_value=-2., metadata=None):
+        super(MyLane, self).__init__()
+        self.curr_iter = 0
+        self.points = points
+        self.invalid_value = invalid_value
+
+        self.metadata = metadata or {}
+
+    def __repr__(self):
+        return '[Lane]\n' + str(self.points) + '\n[/Lane]'
+
+    def to_array(self, cfg): 
+        img_w, img_h = cfg.ori_img_w, cfg.ori_img_h
+        lane = [] 
+        for point in self.points: 
+            lane.append([int(point[0]), int(point[1])]) 
+
+        return np.array(lane)
+
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.curr_iter < len(self.points):
+            self.curr_iter += 1
+            return self.points[self.curr_iter - 1]
+        self.curr_iter = 0
         raise StopIteration
