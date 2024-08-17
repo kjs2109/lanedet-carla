@@ -98,7 +98,10 @@ lanedet-workspace
 
 # 4. docker pull and run 
 $ docker pull jusungkim/lanedet-carla-devel:v1.5
-$ docker run -it --shm-size=8g --gpus all --name lanedet-carla-v15 -v ./lanedet-carla:/root/lanedet-carla -v ./DssDataset:/root/DssDataset jusungkim/lanedet-carla-devel:v1.5  
+$ docker run -it --shm-size=8g --gpus all --name lanedet-carla-v15 \
+             -v ./lanedet-carla:/root/lanedet-carla \
+             -v ./DssDataset:/root/DssDataset \
+             jusungkim/lanedet-carla-devel:v1.5  
 
 # 5. setup and build 
 $ cd /root/lanedet-carla 
